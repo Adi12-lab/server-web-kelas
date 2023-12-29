@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  username String @unique
+  password String
+}
+
+model Member {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  origin           String
+  description      String
+  instagram        String
+  phone            String
+  moto             String
+  dream            String
+  image            String
+  background_image String
+  Comment          Comment[]
+}
+
+model Comment {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  comment  String
+  member   Member @relation(fields: [memberId], references: [id])
+  memberId String @db.ObjectId
+   createdAt DateTime @default(now())
+}
+
+model Gallery {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  image String
+  event String
+}
