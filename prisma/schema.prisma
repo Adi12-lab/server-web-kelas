@@ -28,11 +28,11 @@ model Member {
 }
 
 model Comment {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  comment  String
-  member   Member @relation(fields: [memberId], references: [id])
-  memberId String @db.ObjectId
-   createdAt DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  comment   String
+  member    Member   @relation(fields: [memberId], references: [id])
+  memberId  String   @db.ObjectId
+  createdAt DateTime @default(now())
 }
 
 model Gallery {
