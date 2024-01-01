@@ -35,5 +35,5 @@ export async function uploadImage(image: Express.Multer.File, uploadFolder: stri
     const imageBuffer = image.buffer;
     await uploadBytes(imageRef, imageBuffer)   
     return imageRef.fullPath
-  }
+}
   

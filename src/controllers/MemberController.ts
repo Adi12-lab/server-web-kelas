@@ -1,9 +1,5 @@
 import { Request, Response } from "express";
-import {
-  ref,
-  deleteObject,
-  getDownloadURL,
-} from "firebase/storage";
+import { ref, deleteObject, getDownloadURL } from "firebase/storage";
 
 import { prisma } from "../lib/prisma";
 import { storage } from "../lib/firebase";
@@ -50,19 +46,21 @@ export const getAllMember = async (req: Request, res: Response) => {
 
 export const findMember = async (req: Request, res: Response) => {
   try {
-    const {id} = req.params
+    const { id } = req.params;
     const result = await prisma.member.findFirst({
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
 
-    if(result) {
-      result.image = await getDownloadURL(ref(storage,result?.image))
-      result.background_image = await getDownloadURL(ref(storage,result?.background_image))
+    if (result) {
+      result.image = await getDownloadURL(ref(storage, result?.image));
+      result.background_image = await getDownloadURL(
+        ref(storage, result?.background_image)
+      );
     }
-    
-    return res.status(200).send(result)
+
+    return res.status(200).send(result);
   } catch (error) {
     console.log("[GET_MEMBER] " + error);
     return res.sendStatus(400);
@@ -161,7 +159,7 @@ export const updateMember = async (req: Request, res: Response) => {
 
     const result = await prisma.member.update({
       where: {
-        id: req.body.id,
+        id,
       },
       data: {
         ...req.body,
@@ -181,7 +179,7 @@ export const deleteMember = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     if (!id) {
-      return res.status(400).send({ error: "id Required" });
+      return res.status(400).send({ message: "id Required" });
     }
 
     const oldMember = await prisma.member.findFirst({

@@ -9,9 +9,10 @@ import {
 import { auth } from "../middleware";
 
 export default (router: Router) => {
-  router.get("/member/all", getAllMember);
-  router.get("/member/find/:id", findMember);
-  router.post("/member/create", auth, createMember);
-  router.put("/member/update/:id", auth, updateMember);
-  router.delete("/member/delete/:id", auth, deleteMember);
+  router.route("/member").get(getAllMember).post(auth, createMember);
+  router
+    .route("/member/:id")
+    .get(findMember)
+    .put(auth, updateMember)
+    .delete(auth, deleteMember);
 };

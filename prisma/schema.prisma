@@ -16,6 +16,7 @@ model User {
 model Member {
   id               String    @id @default(auto()) @map("_id") @db.ObjectId
   name             String
+  slug             String
   origin           String
   description      String
   instagram        String
@@ -35,8 +36,15 @@ model Comment {
   createdAt DateTime @default(now())
 }
 
+model Event {
+  id      String    @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
+  Gallery Gallery[]
+}
+
 model Gallery {
-  id    String @id @default(auto()) @map("_id") @db.ObjectId
-  image String
-  event String
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  image   String
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String @db.ObjectId
 }
