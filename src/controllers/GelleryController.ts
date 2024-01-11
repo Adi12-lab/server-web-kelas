@@ -23,20 +23,20 @@ export const getAllGalleryByEventId = async (req: Request, res: Response) => {
         };
       })
     );
-    res.status(200).send(galleries);
+    return res.status(200).send(galleries);
   } catch (error) {
     console.log("[GET_GALLERY] " + error);
-    res.sendStatus(400);
+    return res.sendStatus(400);
   }
 };
 
 export const createGallery = async (req: Request, res: Response) => {
   try {
+
     const [image] = req.files as Express.Multer.File[];
     if (!image) {
       return res.status(400).send({ message: "Image required" });
     }
-
     const imageUrl = await uploadImage(
       image as Express.Multer.File,
       `${process.env.FIREBASE_FOLDER_GALLERY}/${generateString(8)}.jpg`
@@ -47,10 +47,10 @@ export const createGallery = async (req: Request, res: Response) => {
         image: imageUrl
       },
     });
-    res.status(200).send(result);
+    return res.status(200).send(result);
   } catch (error) {
     console.log("[POST_GALLERY] " + error);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 };
 
@@ -90,7 +90,7 @@ export const updateGallery = async (req: Request, res: Response) => {
     return res.status(200).send(result);
   } catch (error) {
     console.log("[PUT_GALLERY] " + error);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 };
 
@@ -120,6 +120,6 @@ export const deleteGallery = async (req: Request, res: Response) => {
     return res.status(200).send(result);
   } catch (error) {
     console.log("[DELETE_GALLERY] " + error);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 };

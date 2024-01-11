@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ref, deleteObject, getDownloadURL } from "firebase/storage";
+import { Prisma } from "@prisma/client";
 
 import { prisma } from "../lib/prisma";
 import { storage } from "../lib/firebase";
@@ -7,22 +8,34 @@ import { generateString, uploadImage } from "../helper";
 
 export const getAllMember = async (req: Request, res: Response) => {
   try {
-    let queryPage = 1;
-    const perPage = 6;
-    const { page } = req.query;
-    if (page) {
-      queryPage = parseInt(page.toString());
-    }
-    const skip = (queryPage - 1) * perPage;
+    const pageSize = 5;
+    const page = Number(req.query.page) || 0;
+    const search = req.query.search?.toString()
 
-    const result = await prisma.member.findMany({
-      skip,
-      take: perPage,
+    let queryOptions = {
+      skip: page,
+      take: pageSize + 1,
       orderBy: {
-        name: "asc",
+        name: Prisma.SortOrder.asc,
       },
-    });
+      where: search ? {
+        name: {
+          contains: search,
+          mode: Prisma.QueryMode.insensitive
+        },
+      } : undefined,
+    };
+    // const queryAdvance = Prisma.validator<Prisma.MemberFindManyArgs>()(queryOptions)
+    
+    const result = await prisma.member.findMany(queryOptions);
 
+    let nextPage = null;
+
+    if(result.length > pageSize) {
+      nextPage = page + pageSize
+      result.pop()
+    }
+    
     const members = await Promise.all(
       result.map(async (member) => {
         const imageUrl = await getDownloadURL(ref(storage, member.image));
@@ -37,12 +50,24 @@ export const getAllMember = async (req: Request, res: Response) => {
       })
     );
 
-    return res.status(200).send(members);
+     return res.status(200).send({result: members, nextPage});
   } catch (error) {
     console.log("[GET_MEMBER] " + error);
-    return res.sendStatus(400);
+    return res.sendStatus(500);
   }
 };
+
+export const getAllMemberWithoutImage = async (req: Request, res: Response) => {
+  try {
+    const result = await prisma.member.findMany()
+    return res.status(200).send(result)
+  } catch (error) {
+    console.log("[GET_MEMBER] " + error);
+    return res.sendStatus(500);
+  }
+}
+
+
 
 export const findMember = async (req: Request, res: Response) => {
   try {
@@ -50,6 +75,28 @@ export const findMember = async (req: Request, res: Response) => {
     const result = await prisma.member.findFirst({
       where: {
         id,
+      },
+    });
+    
+    if (result) {
+      result.image = await getDownloadURL(ref(storage, result?.image));
+      result.background_image = await getDownloadURL(
+        ref(storage, result?.background_image)
+      );
+    }
+    return res.status(200).send(result);
+  } catch (error) {
+    console.log("[GET_MEMBER] " + error);
+    return res.sendStatus(400);
+  }
+};
+
+export const findMemberBySlug = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const result = await prisma.member.findFirst({
+      where: {
+        slug,
       },
     });
 
