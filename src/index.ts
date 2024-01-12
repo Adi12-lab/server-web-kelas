@@ -11,8 +11,8 @@ const PORT = parseInt(process.env.PORT as string)
 const upload = multer()
 
 app.use(cors({
-    credentials: true,
-    origin: process.env.ORIGIN_URL
+	    credentials: true,
+	        origin: process.env.ORIGIN_URL
 }))
 app.use(cookieParser())
 app.use(bodyParser.json())
@@ -21,4 +21,4 @@ app.use(upload.any())
 
 
 app.use("/", routers())
-app.listen(PORT, ()=> {console.log("Server running in port http://localhost:"+PORT)})
+app.listen(PORT, ()=> {console.log("Server running in port http://localhost:"+PORT, process.env.ORIGIN_URL)})

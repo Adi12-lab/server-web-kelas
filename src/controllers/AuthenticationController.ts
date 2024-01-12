@@ -16,7 +16,7 @@ export const login = async (req: Request, res: Response) => {
         username,
       },
     });
-
+	
     if (!user) {
       return res.status(400).send({
         code: "USER_HAS_NOT_REGISTERED",
@@ -31,12 +31,15 @@ export const login = async (req: Request, res: Response) => {
         message: "Password not match"
       });
     }
-
+	
     return res
       .cookie("access_token", generateAccessToken(user), {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        maxAge: 1000 * 60 *60 *24
+        maxAge: 1000 * 60 *60 *24,
+	sameSite:"none",
+	domain: process.env.DOMAIN,
+	path: "/"
       })
       .status(200)
       .send({ message: "Login success" });
@@ -79,7 +82,7 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const logout = (req: Request, res: Response) => {
-  return res.clearCookie("access_token").status(200).send({message: "Successfully logged out"})
+  return res.clearCookie("access_token", {domain: process.env.DOMAIN, sameSite: "none", path: "/", secure: true, httpOnly: true}).status(200).send({message: "Successfully logged out"})
 }
 
 
